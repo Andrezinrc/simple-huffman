@@ -3,7 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 
-// Lê um arquivo e conta a frequência de cada byte
+#include "huffman.h"
+
 int* CountFrequency(const char fileName[]){
     int *frequency = calloc(256, sizeof(int));
 
@@ -25,11 +26,20 @@ int* CountFrequency(const char fileName[]){
         frequency[byte]++;
     }
 
-    for (int i = 0; i < 256; i++)
-        if (frequency[i] > 0)
-            printf("Byte %3d => %d\n", i, frequency[i]);
-
     fclose(file); file = NULL;
 
     return frequency;
+}
+
+Node* createNode(unsigned char character, int frequency){
+    Node *node = (Node*)malloc(sizeof(Node));
+    if(!node) return NULL;
+
+    // inicializa os campos do nó
+    node->frequency = frequency;
+    node->character = character;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
 }
