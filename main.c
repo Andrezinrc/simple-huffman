@@ -32,8 +32,7 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-
-
+    /*
     Node* nodes[3];
     nodes[0] = createNode('A', 5);
     nodes[1] = createNode('B', 2);
@@ -41,15 +40,18 @@ int main(int argc, char* argv[]) {
 
     // ordena o array com qsort usando sua função
     qsort(nodes, 3, sizeof(Node*), compareNode);
+    */
 
+    Node* nodeList[256];
+    int count = generateNodeList(freq, nodeList);
+    qsort(nodeList, count, sizeof(Node*), compareNode);
+    
     // imprime pra verificar se ordenou corretamente
-    for (int i = 0; i < 3; i++) {
-        printf("'%c': %d\n", nodes[i]->character, nodes[i]->frequency);
-        free(nodes[i]);
+    for (int i = 0; i < count; i++) {
+        printf("'%c': %d\n", nodeList[i]->character, nodeList[i]->frequency);
+        free(nodeList[i]);
     }
-
 
     free(freq);
     return 0;
 }
-

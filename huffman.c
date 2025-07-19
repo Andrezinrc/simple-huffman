@@ -50,3 +50,16 @@ int compareNode(const void* a, const void* b){
 
     return nodeA->frequency - nodeB->frequency; // // ordena pela frequência
 }
+
+int generateNodeList(int* frequency, Node* nodeList[]){
+    int count = 0;
+
+    for(int i = 0; i < 256; i++){
+        if(frequency[i] > 0){
+            // cria um nó com o caractere e sua frequência
+            nodeList[count++] = createNode((unsigned char)i, frequency[i]);
+        }
+    }
+
+    return count;
+}
