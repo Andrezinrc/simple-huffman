@@ -89,3 +89,10 @@ Node* buildHuffmanTree(Node* nodes[], int count){
     // quando restar só um nó, é a raiz da árvore
     return nodes[0];
 }
+
+void freeTree(Node* root) {
+    if (!root) return;
+    freeTree(root->left);
+    freeTree(root->right);
+    free(root);
+}

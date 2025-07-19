@@ -24,4 +24,7 @@ int generateNodeList(int* frequency, Node* nodeList[]);
 // Constrói a árvore de Huffman a partir de uma lista de nós com caracteres e suas frequências
 Node* buildHuffmanTree(Node* nodes[], int count);
 
+// Libera toda a árvore Huffman recursivamente
+void freeTree(Node* root);
+
 #endif

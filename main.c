@@ -49,7 +49,6 @@ int main(int argc, char* argv[]) {
     // imprime pra verificar se ordenou corretamente
     for (int i = 0; i < count; i++) {
         printf("'%c': %d\n", nodeList[i]->character, nodeList[i]->frequency);
-        free(nodeList[i]);
     }
 
     // constrói a árvore de Huffman
@@ -57,7 +56,8 @@ int main(int argc, char* argv[]) {
     if (root) {
         printf("\nRaiz da árvore: frequência total = %d\n", root->frequency);
     }
-
+    freeTree(root);
     free(freq);
+    
     return 0;
 }
