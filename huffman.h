@@ -1,6 +1,8 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
+#include <stdio.h>
+
 // estrutura do nó da árvore de huffman
 typedef struct Node {
     unsigned char character;
@@ -32,5 +34,8 @@ Gera recursivamente os codigos binarios para cada caractere, percorrendo a árvo
 cada caminho da raiz até uma folha forma um código (esquerda = '0', direita = '1')
 */
 void generateCodes(Node* root, char* path, int depth, char* codes[256]);
+
+// Compacta um unico arquivo e grava no .adr com caminho relativo e metadados
+void compressSingleFileToStream(const char* filePath, const char* relativePath, FILE* output);
 
 #endif

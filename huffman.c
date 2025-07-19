@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #include "huffman.h"
 
@@ -120,4 +121,88 @@ void generateCodes(Node* root, char* path, int depth, char* codes[256]){
     // direita = 1
     path[depth] = '1';
     generateCodes(root->right, path, depth + 1, codes);
+}
+
+void compressSingleFileToStream(const char* filePath, const char* relativePath, FILE* output) {
+    FILE* file = fopen(filePath, "rb");
+    if (!file) {
+        fprintf(stderr, "Erro ao abrir arquivo %s\n", filePath);
+        return;
+    }
+
+    // calcula frequência dos bytes
+    int* freq = CountFrequency(filePath);
+    if (!freq) {
+        fclose(file);
+        return;
+    }
+
+    // cria árvore de huffman e gera os codigos
+    Node* nodeList[256];
+    int count = generateNodeList(freq, nodeList);
+    qsort(nodeList, count, sizeof(Node*), compareNode);
+    Node* root = buildHuffmanTree(nodeList, count);
+
+    char* codes[256] = {0};
+    char path[256];
+    generateCodes(root, path, 0, codes);
+
+    // escreve caminho relativo
+    uint16_t pathLen = (uint16_t)strlen(relativePath);
+    fwrite(&pathLen, sizeof(uint16_t), 1, output);
+    fwrite(relativePath, 1, pathLen, output);
+
+    // escreve tamanho original do arquivo
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+    uint32_t fileSize32 = (uint32_t)fileSize;
+    fwrite(&fileSize32, sizeof(uint32_t), 1, output);
+
+    // escreve tabela de frequência
+    fwrite(freq, sizeof(int), 256, output);
+
+    unsigned char buffer = 0;
+    int bitCount = 0;
+    int c;
+    long bytesRead = 0;
+    int lastPercent = -1;
+
+    // codifica os dados byte a byte usando huffman e grava os bits compactados no arquivo
+    while ((c = fgetc(file)) != EOF) {
+        const char* code = codes[c];
+        for (int i = 0; code[i] != '\0'; i++) {
+            buffer <<= 1;
+            if (code[i] == '1') buffer |= 1;
+            bitCount++;
+
+            /*
+            quando 8 bits sao preenchidos,
+            grava o byte no arquivo
+            */
+            if (bitCount == 8) {
+                fwrite(&buffer, 1, 1, output);
+                buffer = 0;
+                bitCount = 0;
+            }
+        }
+        bytesRead++;
+    }
+
+    /*
+    se restaram bits nao gravados,
+    preenche com zeros a direita e grava o utilmo byte
+    */
+    if (bitCount > 0) {
+        buffer <<= (8 - bitCount);
+        fwrite(&buffer, 1, 1, output);
+    }
+
+    // libera memoria
+    fclose(file);
+    free(freq);
+    for (int i = 0; i < 256; i++) {
+        if (codes[i]) free(codes[i]);
+    }
+    freeTree(root);
 }

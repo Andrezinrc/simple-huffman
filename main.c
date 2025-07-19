@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
 
 #include "huffman.h"
 
 int main(int argc, char* argv[]) {
     //printf("Hello, World!\n");
 
-    if (argc < 2) {
-        printf("Uso: %s <arquivo>\n", argv[0]);
+    if (argc != 3) {
+        printf("Uso: %s <arquivo_entrada> <arquivo_saida.adr>\n", argv[0]);
         return 1;
     }
 
-    char *file = argv[1];
+    const char *file = argv[1];
+    const char* outputFile = argv[2];
 
     int* freq = CountFrequency(file);
 
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]) {
     // constrói a árvore de Huffman
     Node* root = buildHuffmanTree(nodeList, count);
     if (root) {
-        printf("\nRaiz da árvore: frequência total = %d\n", root->frequency);
+        //printf("\nRaiz da árvore: frequência total = %d\n", root->frequency);
     }
 
     char* codes[256] = {0};
@@ -62,16 +65,26 @@ int main(int argc, char* argv[]) {
 
     generateCodes(root, path, 0, codes);
 
-    printf("\nCódigos gerados:\n");
+    //printf("\nCódigos gerados:\n");
     for (int i = 0; i < 256; i++) {
         if (codes[i]) {
-            printf("'%c': %s\n", (char)i, codes[i]);
+            //printf("'%c': %s\n", (char)i, codes[i]);
             free(codes[i]);
         }
     }
 
+    FILE* out = fopen(outputFile, "wb");
+    if (!out) {
+        perror("Erro ao abrir arquivo de saída");
+        return 1;
+    }
+
+    compressSingleFileToStream(file, file, out);
+    printf("Arquivo compactado gerado: %s\n", outputFile);
+
     freeTree(root);
     free(freq);
-
+    fclose(out);
+    
     return 0;
 }
