@@ -3,6 +3,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "huffman.h"
 
@@ -123,6 +126,18 @@ void generateCodes(Node* root, char* path, int depth, char* codes[256]){
     generateCodes(root->right, path, depth + 1, codes);
 }
 
+void getAdrFilename(const char* inputPath, char* outputPath, size_t size) {
+    const char* lastSlash = strrchr(inputPath, '/');
+    const char* fileName = lastSlash ? lastSlash + 1 : inputPath;
+
+    // copia o nome sem extensão
+    strncpy(outputPath, fileName, size);
+    char* dot = strrchr(outputPath, '.');
+    if (dot) *dot = '\0';  // remove extensão
+
+    strncat(outputPath, ".adr", size - strlen(outputPath) - 1);
+}
+
 void compressSingleFileToStream(const char* filePath, const char* relativePath, FILE* output) {
     FILE* file = fopen(filePath, "rb");
     if (!file) {
@@ -204,5 +219,58 @@ void compressSingleFileToStream(const char* filePath, const char* relativePath, 
     for (int i = 0; i < 256; i++) {
         if (codes[i]) free(codes[i]);
     }
+    freeTree(root);
+}
+
+void decompressSingleFileFromStream(FILE* input) {
+    uint16_t pathLen;
+    fread(&pathLen, sizeof(uint16_t), 1, input);
+
+    char path[1024];
+    fread(path, 1, pathLen, input);
+    path[pathLen] = '\0';
+
+    // lê o tamanho original do arquivo
+    uint32_t originalSize;
+    fread(&originalSize, sizeof(uint32_t), 1, input);
+
+    // lê a tabela de frequência
+    int freq[256];
+    fread(freq, sizeof(int), 256, input);
+
+    // reconstrói a árvore de Huffman
+    Node* nodeList[256];
+    int count = generateNodeList(freq, nodeList);
+    qsort(nodeList, count, sizeof(Node*), compareNode);
+    Node* root = buildHuffmanTree(nodeList, count);
+
+    // prepara para decodificação
+    FILE* output = fopen(path, "wb");
+    if (!output) {
+        fprintf(stderr, "Erro ao criar arquivo de saída %s\n", path);
+        freeTree(root);
+        return;
+    }
+
+    Node* current = root;
+    unsigned char byte;
+    int written = 0;
+
+    // decodifica bit a bit até atingir o tamanho original
+    while (written < originalSize && fread(&byte, 1, 1, input) == 1) {
+        for (int i = 7; i >= 0 && written < originalSize; i--) {
+            int bit = (byte >> i) & 1;
+            current = bit == 0 ? current->left : current->right;
+
+            // se chegou numa folha, escreve o caractere
+            if (!current->left && !current->right) {
+                fputc(current->character, output);
+                written++;
+                current = root; // volta pro topo da árvore
+            }
+        }
+    }
+
+    fclose(output);
     freeTree(root);
 }

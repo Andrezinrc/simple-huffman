@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 #include "huffman.h"
 
@@ -9,12 +11,13 @@ int main(int argc, char* argv[]) {
     //printf("Hello, World!\n");
 
     if (argc != 3) {
-        printf("Uso: %s <arquivo_entrada> <arquivo_saida.adr>\n", argv[0]);
+        printf("Uso: %s compress <arquivo.txt>\n", argv[0]);
+        printf("     %s decompress <arquivo.adr>\n", argv[0]);
         return 1;
     }
 
-    const char *file = argv[1];
-    const char* outputFile = argv[2];
+    const char *mode = argv[1];
+    const char *file = argv[2];
 
     int* freq = CountFrequency(file);
 
@@ -73,18 +76,38 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    FILE* out = fopen(outputFile, "wb");
-    if (!out) {
-        perror("Erro ao abrir arquivo de saída");
+    if (strcmp(mode, "compress") == 0) {
+        char outputPath[256];
+        getAdrFilename(file, outputPath, sizeof(outputPath));
+
+        FILE* out = fopen(outputPath, "wb");
+        if (!out) {
+            fprintf(stderr, "Erro ao criar %s\n", outputPath);
+            return 1;
+        }
+
+        compressSingleFileToStream(file, file, out);
+        fclose(out);
+        printf("Arquivo compactado como %s\n", outputPath);
+    } 
+    else if (strcmp(mode, "decompress") == 0) {
+        FILE* in = fopen(file, "rb");
+        if (!in) {
+            printf("Erro ao abrir %s\n", file); 
+            return 1;
+        }
+
+        decompressSingleFileFromStream(in);
+        fclose(in);
+        printf("Arquivo descompactado com sucesso!\n");
+    } 
+    else {
+        printf("Comando inválido. Use 'compress' ou 'decompress'.\n");
         return 1;
     }
 
-    compressSingleFileToStream(file, file, out);
-    printf("Arquivo compactado gerado: %s\n", outputFile);
-
     freeTree(root);
     free(freq);
-    fclose(out);
-    
+
     return 0;
 }

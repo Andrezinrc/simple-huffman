@@ -35,7 +35,14 @@ cada caminho da raiz até uma folha forma um código (esquerda = '0', direita = 
 */
 void generateCodes(Node* root, char* path, int depth, char* codes[256]);
 
+// Gera o nome de saída com extensão .adr a partir do nome do arquivo de entrada
+// Exemplo: "arquivo.txt" -> "arquivo.adr"
+void getAdrFilename(const char* inputPath, char* outputPath, size_t size);
+
 // Compacta um unico arquivo e grava no .adr com caminho relativo e metadados
 void compressSingleFileToStream(const char* filePath, const char* relativePath, FILE* output);
+
+// Lê e descompacta um arquivo codificado com Huffman do arquivo .adr
+void decompressSingleFileFromStream(FILE* input);
 
 #endif

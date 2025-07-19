@@ -11,7 +11,8 @@ gcc main.c huffman.c -o main
 ## Uso
 
 ```bash
-./main compress ./arquivo_entrada arquivo_saida.adr
+./main compress ./caminho/para/arquivo
+./main decompress ./caminho/para/arquivo.adr
 ```
 ## Como contribuir
 
