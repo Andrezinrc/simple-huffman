@@ -85,7 +85,7 @@ Node* buildHuffmanTree(Node* nodes[], int count){
         nodes[count-2] = newNode;
         count--;
     }
-    
+
     // quando restar só um nó, é a raiz da árvore
     return nodes[0];
 }
@@ -95,4 +95,29 @@ void freeTree(Node* root) {
     freeTree(root->left);
     freeTree(root->right);
     free(root);
+}
+
+void generateCodes(Node* root, char* path, int depth, char* codes[256]){
+    if(!root) return;
+
+    // se for folha, salva o codigo
+    if(!root->left && !root->right){
+        if(depth == 0) {
+            // arvore com só um nó, código "0"
+            path[depth] = '0';
+            path[depth + 1] = '\0';
+        } else {
+            path[depth] = '\0';
+        }
+        codes[root->character] = strdup(path); // salva copia do codigo
+        return;
+    }
+
+    // esquerda = 0
+    path[depth] = '0';
+    generateCodes(root->left, path, depth + 1, codes);
+
+    // direita = 1
+    path[depth] = '1';
+    generateCodes(root->right, path, depth + 1, codes);
 }

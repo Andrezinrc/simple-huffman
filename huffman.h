@@ -27,4 +27,10 @@ Node* buildHuffmanTree(Node* nodes[], int count);
 // Libera toda a árvore Huffman recursivamente
 void freeTree(Node* root);
 
+/*
+Gera recursivamente os codigos binarios para cada caractere, percorrendo a árvore de huffman-
+cada caminho da raiz até uma folha forma um código (esquerda = '0', direita = '1')
+*/
+void generateCodes(Node* root, char* path, int depth, char* codes[256]);
+
 #endif

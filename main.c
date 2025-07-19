@@ -22,10 +22,10 @@ int main(int argc, char* argv[]) {
             //printf("Byte %3d => %d\n", i, freq[i]);
             Node* node = createNode((unsigned char)i, freq[i]);
             if (node) {
-                printf("Nó criado: caractere '%c' (byte %d), frequência %d\n", 
+                /*printf("Nó criado: caractere '%c' (byte %d), frequência %d\n", 
                        node->character,
                        node->character, 
-                       node->frequency);
+                       node->frequency); */
                 free(node);
             } else {
                 printf("Erro ao criar nó para byte %d\n", i);
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 
     // imprime pra verificar se ordenou corretamente
     for (int i = 0; i < count; i++) {
-        printf("'%c': %d\n", nodeList[i]->character, nodeList[i]->frequency);
+        //printf("'%c': %d\n", nodeList[i]->character, nodeList[i]->frequency);
     }
 
     // constrói a árvore de Huffman
@@ -56,8 +56,22 @@ int main(int argc, char* argv[]) {
     if (root) {
         printf("\nRaiz da árvore: frequência total = %d\n", root->frequency);
     }
+
+    char* codes[256] = {0};
+    char path[256];
+
+    generateCodes(root, path, 0, codes);
+
+    printf("\nCódigos gerados:\n");
+    for (int i = 0; i < 256; i++) {
+        if (codes[i]) {
+            printf("'%c': %s\n", (char)i, codes[i]);
+            free(codes[i]);
+        }
+    }
+
     freeTree(root);
     free(freq);
-    
+
     return 0;
 }
