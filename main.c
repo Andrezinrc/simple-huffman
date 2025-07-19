@@ -45,11 +45,17 @@ int main(int argc, char* argv[]) {
     Node* nodeList[256];
     int count = generateNodeList(freq, nodeList);
     qsort(nodeList, count, sizeof(Node*), compareNode);
-    
+
     // imprime pra verificar se ordenou corretamente
     for (int i = 0; i < count; i++) {
         printf("'%c': %d\n", nodeList[i]->character, nodeList[i]->frequency);
         free(nodeList[i]);
+    }
+
+    // constrói a árvore de Huffman
+    Node* root = buildHuffmanTree(nodeList, count);
+    if (root) {
+        printf("\nRaiz da árvore: frequência total = %d\n", root->frequency);
     }
 
     free(freq);

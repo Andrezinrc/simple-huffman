@@ -21,4 +21,7 @@ int compareNode(const void* a, const void* b);
 // Gera uma lista de nós a partir do array de frequências
 int generateNodeList(int* frequency, Node* nodeList[]);
 
+// Constrói a árvore de Huffman a partir de uma lista de nós com caracteres e suas frequências
+Node* buildHuffmanTree(Node* nodes[], int count);
+
 #endif

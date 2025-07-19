@@ -63,3 +63,29 @@ int generateNodeList(int* frequency, Node* nodeList[]){
 
     return count;
 }
+
+Node* buildHuffmanTree(Node* nodes[], int count){
+    // ordena a lista de nós por frequência
+    while(count > 1){
+        // pega os dois nós de menor frequência
+        Node *left = nodes[0];
+        Node *right = nodes[1];
+
+        // cria um novo nó combinando os dois
+        Node *newNode = createNode('\0', left->frequency + right->frequency);
+        newNode->left = left;
+        newNode->right = right;
+
+        // move todos os nós restantes 2 posiçoes para tras
+        for(int i = 2; i < count; i++){
+            nodes[i-2] = nodes[i];
+        }
+
+        // adiciona o novo nó no fim da lista
+        nodes[count-2] = newNode;
+        count--;
+    }
+    
+    // quando restar só um nó, é a raiz da árvore
+    return nodes[0];
+}
