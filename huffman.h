@@ -15,4 +15,7 @@ int* CountFrequency(const char fileName[]);
 // Cria e inicializa um novo nó da árvore de Huffman com caractere e frequência
 Node* createNode(unsigned char character, int frequency);
 
+// Fumção de comparção usada para ordenar os nós por frequência
+int compareNode(const void* a, const void* b);
+
 #endif

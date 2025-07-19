@@ -43,3 +43,10 @@ Node* createNode(unsigned char character, int frequency){
 
     return node;
 }
+
+int compareNode(const void* a, const void* b){
+    Node *nodeA = *(Node**)a; // converte o ponteiro genérico para ponteiro de Node
+    Node *nodeB = *(Node**)b; // idem
+
+    return nodeA->frequency - nodeB->frequency; // // ordena pela frequência
+}
